@@ -4,16 +4,28 @@
 # Import libraries
 import cProfile
 import string
+import sys
 from collections import defaultdict
 from operator import itemgetter
 from pprint import pprint
 from timeit import time
+from unicodedata import category
 
 # Should we run the full profiler?
 profile = False
 
 # Files to tokenize
 files = ["pettigrew_letters_ORIGINAL.txt", "moby_dick.txt", "war_and_peace.txt"]
+
+# The Julia `ispunct` function matches all Unicode punctuation, whereas Python's
+# `string.punctuation` only matches ASCII punctuation. We create a custom
+# Unicode pattern matcher here:
+chrs = (chr(i) for i in range(sys.maxunicode + 1))
+punctuation = ''.join([c for c in chrs if category(c).startswith("P")])
+
+# Alternatively, you could just add a few key Unicoed punctuation characters to
+# the base ASCII:
+# punctuation = ''.join([string.punctuation, '—', '”', '“'])
 
 # -------------------------
 # Main function
@@ -32,7 +44,7 @@ def tokenize(infile):
     tokens = defaultdict(int)
 
     for line in text:
-        line_tokens = [token.strip(string.punctuation) for token in
+        line_tokens = [token.strip(punctuation) for token in
                        line.strip().lower().split()]
         for token in line_tokens:
             tokens[token] += 1
@@ -54,6 +66,8 @@ def tokenize(infile):
     pprint(sorted_tokens[:20])
     print()
 
+    return sorted_tokens
+
 # -------------------------
 # Profile and collect stats
 # -------------------------
@@ -64,10 +78,10 @@ for infile in files:
         pr.enable()
 
         # Run target function
-        tokenize(infile)
+        tokens = tokenize(infile)
 
         # Display stats
         pr.disable()
         pr.print_stats(sort="time")
     else:
-        tokenize(infile)
+        sorted_tokens = tokenize(infile)
