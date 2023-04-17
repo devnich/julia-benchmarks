@@ -14,18 +14,25 @@ from unicodedata import category
 # Should we run the full profiler?
 profile = False
 
+# Should we strip all Unicode punctuation?
+utf8_punctuation = True
+
+if utf8_punctuation:
+    # The Julia `ispunct` function matches all Unicode punctuation. To get the
+    # equivalent functionality in Python, we have to manually collect the
+    # Unicode punctuation characters:
+    chrs = (chr(i) for i in range(sys.maxunicode + 1))
+    punctuation = ''.join([c for c in chrs if category(c).startswith("P")])
+else:
+    # Use the built-in ASCII punctuation collection
+    punctuation = string.punctuation
+
+    # An alternative approach would be to augment the base ASCII set with a few
+    # critical Unicode characters, e.g.:
+    # punctuation = ''.join([string.punctuation, '—', '”', '“'])
+
 # Files to tokenize
 files = ["pettigrew_letters_ORIGINAL.txt", "moby_dick.txt", "war_and_peace.txt"]
-
-# The Julia `ispunct` function matches all Unicode punctuation, whereas Python's
-# `string.punctuation` only matches ASCII punctuation. We create a custom
-# Unicode pattern matcher here:
-chrs = (chr(i) for i in range(sys.maxunicode + 1))
-punctuation = ''.join([c for c in chrs if category(c).startswith("P")])
-
-# Alternatively, you could just add a few key Unicoed punctuation characters to
-# the base ASCII:
-# punctuation = ''.join([string.punctuation, '—', '”', '“'])
 
 # -------------------------
 # Main function
