@@ -18,36 +18,36 @@ profile = False
 utf8_punctuation = True
 
 if utf8_punctuation:
-    # The Julia `ispunct` function matches all Unicode punctuation. To get the
-    # equivalent functionality in Python, we have to manually collect the
-    # Unicode punctuation characters:
+    # the julia `ispunct` function matches all unicode punctuation. to get the
+    # equivalent functionality in python, we have to manually collect the
+    # unicode punctuation characters (798 characters):
     chrs = (chr(i) for i in range(sys.maxunicode + 1))
-    punctuation = ''.join([c for c in chrs if category(c).startswith("P")])
+    punctuation = ''.join([c for c in chrs if category(c).startswith("p")])
 else:
-    # Use the built-in ASCII punctuation collection
+    # use the built-in ascii punctuation collection (32 characters)
     punctuation = string.punctuation
 
-    # An alternative approach would be to augment the base ASCII set with a few
-    # critical Unicode characters, e.g.:
+    # an alternative approach would be to augment the base ascii set with a few
+    # critical unicode characters, e.g.:
     # punctuation = ''.join([string.punctuation, '—', '”', '“'])
 
-# Files to tokenize
-files = ["pettigrew_letters_ORIGINAL.txt", "moby_dick.txt", "war_and_peace.txt"]
+# files to tokenize
+files = ["pettigrew_letters_original.txt", "moby_dick.txt", "war_and_peace.txt"]
 
 # -------------------------
-# Main function
+# main function
 # -------------------------
 def tokenize(infile):
-    """Clean and tokenize a text file."""
+    """clean and tokenize a text file."""
 
-    # Pre-work timestamp
+    # pre-work timestamp
     t1 = time.time()
 
-    # Get a list of files lines; each line is a string
+    # get a list of files lines; each line is a string
     with open('/'.join(["data", infile]), 'r') as f:
         text = f.readlines()
 
-    # Segment tokens, do cleanup, and count them
+    # segment tokens, do cleanup, and count them
     tokens = defaultdict(int)
 
     for line in text:
@@ -56,38 +56,41 @@ def tokenize(infile):
         for token in line_tokens:
             tokens[token] += 1
 
-    # Delete zero-width spaces from our count
-    del tokens['']
+    # delete zero-width spaces from our count
+    try:
+        del tokens['']
+    except KeyError:
+        pass
 
-    # Sort tokens by count
+    # sort tokens by count
     sorted_tokens = sorted(tokens.items(), key=itemgetter(1), reverse=True)
 
-    # Post-work timestamp
+    # post-work timestamp
     t2 = time.time()
 
-    # Print output to screen
+    # print output to screen
     print(infile)
-    print("Wall clock time:", round(t2 - t1, 3))
-    print("Entries:", len(sorted_tokens))
-    print("Top 20 tokens")
+    print("wall clock time:", round(t2 - t1, 3))
+    print("entries:", len(sorted_tokens))
+    print("top 20 tokens")
     pprint(sorted_tokens[:20])
     print()
 
     return sorted_tokens
 
 # -------------------------
-# Profile and collect stats
+# profile and collect stats
 # -------------------------
 for infile in files:
     if profile:
-        # Create and enable profiler
-        pr = cProfile.Profile()
+        # create and enable profiler
+        pr = cprofile.profile()
         pr.enable()
 
-        # Run target function
+        # run target function
         tokens = tokenize(infile)
 
-        # Display stats
+        # display stats
         pr.disable()
         pr.print_stats(sort="time")
     else:

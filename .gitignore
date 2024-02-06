@@ -16,4 +16,5 @@ tmp.md
 *.zip
 
 # Generated files
+output/*
 *.png

@@ -1,8 +1,8 @@
 # -------------------------
 # Setup
 # -------------------------
-# using Pkg
-# Pkg.add("DataStructures")
+#using Pkg
+#Pkg.add("DataStructures")
 using DataStructures
 
 files = ["pettigrew_letters_ORIGINAL.txt", "moby_dick.txt", "war_and_peace.txt"]
@@ -18,7 +18,7 @@ function tokenize(infile)
 
     # Segment tokens, do cleanup, and count them
     tokens = DefaultDict{String, Int64}(0)
-    
+
     for line in text
         line_tokens = split(strip(lowercase(line)))
         for token in line_tokens
@@ -32,7 +32,7 @@ function tokenize(infile)
 
     # Sort tokens by count
     sorted_tokens = sort(collect(tokens), by = x -> x.second, rev = true)
-    
+
     return sorted_tokens
 end
 
